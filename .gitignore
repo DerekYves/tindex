@@ -18,6 +18,4 @@
 *.info
 *.zip
 *.md
-# Sometimes we intentionally add .csv files, but it should never be done accidentally.
-tstamps/
 .Rproj.user
