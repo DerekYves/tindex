@@ -1,0 +1,23 @@
+.DS_Store
+._*
+*~
+*#
+.#*
+~.swp
+.svn
+*.Rda
+*.Rdata
+.RData
+.Rhistory
+.Rapp.history
+*.rdb 
+*.rdx
+*.png
+*.html
+*_cache
+*.info
+*.zip
+*.md
+# Sometimes we intentionally add .csv files, but it should never be done accidentally.
+tstamps/
+.Rproj.user
