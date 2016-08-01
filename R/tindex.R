@@ -5,65 +5,61 @@
 #' a static count within some grouping variable, e.g. class size within a dataframe of test scores.
 #'
 #'
-#' @param df An R \code{\link{data.frame}}
-#' @param grp A grouping variable, such as a subject number, a classroom, a county, etc.
-#' @param sortvar Sorts the data within grp (see above) by an additional variable (e.g., mpg within cyl in matcars). If no variable df is specified, data are sorted by grp.
-#' @param desc When true, sortvar becomes a descending sort within grp.
-#' @param output What type of output is desired, a within group "index" (the default) or a "count" within grp?
-#' @param vector When true (the default), an index or count vector is returned which matches the sorting of df. When false, a data.frame sorted by grp and, optionally, sortvar, is returned with an additional count or index or count column.
-#' @param name Ovveride the default column names returned when vector is false ("index" or "count").
+#' @param df character; an R \code{\link{data.frame}}
+#' @param grp character; a grouping variable, such as a subject number, a classroom, a county, etc.
+#' @param sortvar character; sorts the data within grp (see above) by an additional variable (e.g., mpg within cyl in matcars). If no variable df is specified, data are sorted by grp.
+#' @param desc logical; when \code{TRUE}, sortvar is sorted in descending order within grp.
+#' @param output character; what type of output is desired, a within group "index" (the default) or a "count" within grp?
 #'
-#' Examples:
-#'
-#' Build a count variable by number of cylinders, returning a vector:
+#' @examples
+#' # Build a count variable by number of cylinders, returning a vector:
 #' mtcars$cylinder_count <- tindex(mtcars, cyl, output="count")
 #'
-#' Build a mile per gallon index by number of cylinders, returning a sorted data frame with variable "cyl_rank":
-#' ranked <- tindex(mtcars, cyl, sortvar=mpg, output="index", vector=F, name="cyl_rank")
-#'
-#' Same as the previous example but reverses the order of "cyl_rank":
-#' ranked <- tindex(mtcars, cyl, sortvar=mpg, output="index", vector=F, name="cyl_rank", desc=T)
+#' # Build a within-type index sorting by a second variable:
+#' mtcars$ranked <- tindex(mtcars, cyl, sortvar=mpg, output="index", desc=TRUE)
 
+#' @export
 
 
 tindex  <-
-	function(df, grp, sortvar = NULL, output = "index", vector=T, name=NULL, desc=F) {
+	function(df, grp, sortvar = NULL, output = "index", desc=FALSE) {
 		set.seed(1234)
-		theArgs <- match.call()
+		args <- match.call()
 		df$.oindex <- 1:nrow(df)
-		sortin <- ("sortvar" %in% names(theArgs))
-		namein <- ("name" %in% names(theArgs))
-		if(namein)  toassign <- name
-		if(!namein) toassign <- output
-		if("grp" %in% names(theArgs) == F)
-			warning("No grouping variable defined!")
-		if("df"  %in% names(theArgs) == F)
-			warning("No data frame defined!")
-		if(!sortin & desc) warning("Descending sort is TRUE without a sortvar, ignoring this parameter!")
-		stopifnot("grp" %in% names(theArgs) | "df" %in% names(theArgs))
+		sortin <- ("sortvar" %in% names(args))
+		namein <- ("name" %in% names(args))
+
+		if(!output %in% c("count", "index"))
+			stop("Output must be either 'index' or 'count'!")
+
+		if("grp" %in% names(args) == FALSE)
+			stop("No grouping variable defined!")
+
+		if("df"  %in% names(args) == FALSE)
+			stop("No data frame defined!")
+
+		if(!sortin & desc)
+			warning("Descending sort is TRUE without a sortvar, ignoring this parameter!")
+
 		if(sortin)
 			df$.sortadd <- eval(substitute(sortvar), df)
-		df$.grp     <- eval(substitute(grp), df)
+
+		df$.grp <- eval(substitute(grp), df)
+
 		if(sortin & desc){
 			df <- df[with(df, order(.grp, -.sortadd)),]
-		} else if (sortin & !desc){
+			} else if (sortin & !desc){
 			df <- df[with(df, order(.grp, .sortadd)),]
-		} else {
+			} else {
 			df <- df[with(df, order(.grp)),]
 		}
 		if(output == "count")
-			df$.var <- with(df, ave(.grp, .grp, FUN = length))
+			df$final <- with(df, ave(.grp, .grp, FUN = length))
 		if(output == "index")
-			df$.var <- with(df, ave(rep(1, nrow(df)), .grp, FUN = seq_along))
-		if(vector==T) {
-			df <- df[with(df, order(.oindex)),]
-			final <- df$.var
-		} else {
-			names(df)[names(df)==".var"] <- toassign
-			df$.oindex <- df$.sortadd <- df$.grp <- NULL
-			final <- df
-		}
-		return(final)
+			df$final <- with(df, ave(rep(1, nrow(df)), .grp, FUN = seq_along))
+
+		df <- df[with(df, order(.oindex)),]
+		return(df$final)
 }
 
 

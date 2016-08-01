@@ -1,7 +1,7 @@
 Package: tindex
 Type: Package
 Title: A Simple Package to Create Intra-group Ranking and Count Variables
-Version: 0.1.0
+Version: 0.2.0
 Author: Derek Darves
 Maintainer: Derek Darves <darves@gmail.com>
 URL: https://github.com/DerekYves/gci_index
@@ -9,4 +9,4 @@ Description: This function creates an index or count variable by group,
     optionally sorting on an additional parameter of interest.
 License: GPL-3
 LazyData: TRUE
-RoxygenNote: 5.0.1.9000
+RoxygenNote: 5.0.1
